@@ -13,9 +13,9 @@ export const SocketProvider = ({ children }) => {
 
   useEffect(() => {
     if (user) {
-      socketRef.current = io('http://localhost:5000', {
-        withCredentials: true
-      })
+     socketRef.current = io(import.meta.env.VITE_SERVER_URL || 'http://localhost:5000', {
+  withCredentials: true
+})
 
       socketRef.current.on('connect', () => {
         setConnected(true)
