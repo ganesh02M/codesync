@@ -27,6 +27,7 @@ app.use(cors({
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'))
 app.use('/api/room', require('./routes/roomRoutes'))
+app.use('/api/ai', require('./routes/aiRoutes'))
 
 // Socket.io
 require('./socket/socket')(io)

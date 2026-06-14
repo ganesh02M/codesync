@@ -20,18 +20,27 @@ function EditorPage() {
   const [isSaving, setIsSaving] = useState(false)
   const [messages, setMessages] = useState([])
   const [chatInput, setChatInput] = useState('')
-  const [showChat, setShowChat] = useState(true)
+  const [showChat, setShowChat] = useState(false)
   const [cursors, setCursors] = useState({})
   const isRemoteChange = useRef(false)
   const chatEndRef = useRef(null)
+  const aiEndRef = useRef(null)
   const editorRef = useRef(null)
   const decorationsRef = useRef([])
+  const [showAI, setShowAI] = useState(true)
+  const [aiMessages, setAiMessages] = useState([])
+  const [aiInput, setAiInput] = useState('')
+  const [aiLoading, setAiLoading] = useState(false)
 
   useEffect(() => { fetchRoom() }, [])
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
+
+  useEffect(() => {
+    aiEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [aiMessages])
 
   useEffect(() => {
     if (!socket || !room) return
@@ -162,6 +171,29 @@ function EditorPage() {
     setChatInput('')
   }
 
+  const handleAskAI = async (e) => {
+    e.preventDefault()
+    if (!aiInput.trim()) return
+
+    const userMessage = aiInput
+    setAiMessages(prev => [...prev, { role: 'user', text: userMessage }])
+    setAiInput('')
+    setAiLoading(true)
+
+    try {
+      const res = await api.post('/ai/suggest', {
+        code,
+        prompt: userMessage,
+        language
+      })
+      setAiMessages(prev => [...prev, { role: 'ai', text: res.data.response }])
+    } catch (error) {
+      setAiMessages(prev => [...prev, { role: 'ai', text: 'Error: Could not get AI response' }])
+    } finally {
+      setAiLoading(false)
+    }
+  }
+
   const handleEditorMount = (editor) => {
     editorRef.current = editor
     editor.onDidChangeCursorPosition(handleCursorChange)
@@ -205,7 +237,10 @@ function EditorPage() {
             <option value="java">Java</option>
             <option value="typescript">TypeScript</option>
           </select>
-          <button onClick={() => setShowChat(!showChat)} style={btnStyle('#30363d')}>
+          <button onClick={() => { setShowAI(!showAI); setShowChat(false) }} style={btnStyle('#8b5cf6')}>
+            🤖 AI
+          </button>
+          <button onClick={() => { setShowChat(!showChat); setShowAI(false) }} style={btnStyle('#30363d')}>
             💬 Chat
           </button>
           <button onClick={handleSave} disabled={isSaving} style={btnStyle('#1f6feb')}>
@@ -272,6 +307,78 @@ function EditorPage() {
             </pre>
           </div>
         </div>
+
+        {/* AI Assistant Sidebar */}
+        {showAI && (
+          <div style={{
+            width: '320px', background: '#161b22',
+            borderLeft: '1px solid #30363d', display: 'flex', flexDirection: 'column',
+            flexShrink: 0
+          }}>
+            <div style={{ padding: '10px 16px', borderBottom: '1px solid #30363d' }}>
+              <span style={{ color: '#8b949e', fontSize: '13px', fontWeight: '600' }}>🤖 AI ASSISTANT</span>
+            </div>
+
+            {/* AI Messages */}
+            <div style={{ flex: 1, overflow: 'auto', padding: '12px' }}>
+              {aiMessages.length === 0 ? (
+                <div style={{ color: '#8b949e', fontSize: '12px', textAlign: 'center', marginTop: '20px' }}>
+                  <p style={{ marginBottom: '12px' }}>Ask AI about your code:</p>
+                  <p style={{ marginBottom: '6px' }}>💡 "Explain this code"</p>
+                  <p style={{ marginBottom: '6px' }}>🐛 "Find bugs in this"</p>
+                  <p style={{ marginBottom: '6px' }}>⚡ "Optimize this code"</p>
+                </div>
+              ) : (
+                aiMessages.map((msg, i) => (
+                  <div key={i} style={{ marginBottom: '12px' }}>
+                    <div style={{ marginBottom: '4px' }}>
+                      <span style={{
+                        color: msg.role === 'user' ? '#58a6ff' : '#bc8cff',
+                        fontSize: '12px', fontWeight: '600'
+                      }}>
+                        {msg.role === 'user' ? '👤 You' : '🤖 AI'}
+                      </span>
+                    </div>
+                    <pre style={{
+                      color: '#e6edf3', fontSize: '12px', background: '#0d1117',
+                      padding: '8px 10px', borderRadius: '6px', margin: 0,
+                      whiteSpace: 'pre-wrap', wordBreak: 'break-word',
+                      fontFamily: msg.role === 'ai' ? 'monospace' : 'inherit'
+                    }}>{msg.text}</pre>
+                  </div>
+                ))
+              )}
+              {aiLoading && (
+                <div style={{ color: '#8b949e', fontSize: '12px', fontStyle: 'italic' }}>
+                  🤖 AI is thinking...
+                </div>
+              )}
+              <div ref={aiEndRef} />
+            </div>
+
+            {/* AI Input */}
+            <form onSubmit={handleAskAI} style={{
+              padding: '10px', borderTop: '1px solid #30363d',
+              display: 'flex', gap: '6px'
+            }}>
+              <input
+                value={aiInput}
+                onChange={(e) => setAiInput(e.target.value)}
+                placeholder="Ask AI about your code..."
+                disabled={aiLoading}
+                style={{
+                  flex: 1, padding: '8px', background: '#0d1117',
+                  border: '1px solid #30363d', borderRadius: '6px',
+                  color: '#e6edf3', fontSize: '13px', outline: 'none'
+                }}
+              />
+              <button type="submit" disabled={aiLoading} style={{
+                padding: '8px 12px', background: '#8b5cf6',
+                color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer'
+              }}>→</button>
+            </form>
+          </div>
+        )}
 
         {/* Chat Sidebar */}
         {showChat && (
