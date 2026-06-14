@@ -13,12 +13,21 @@ const server = http.createServer(app)
 
 const allowedOrigins = [
   'http://localhost:5173',
-  'https://codesync-self.vercel.app'
+  'https://codesync-self.vercel.app',
+  /\.vercel\.app$/
 ]
+
+const corsCheck = (origin, callback) => {
+  if (!origin) return callback(null, true)
+  const allowed = allowedOrigins.some(o =>
+    o instanceof RegExp ? o.test(origin) : o === origin
+  )
+  callback(null, allowed)
+}
 
 const io = new Server(server, {
   cors: {
-    origin: allowedOrigins,
+    origin: corsCheck,
     credentials: true
   }
 })
@@ -26,7 +35,7 @@ const io = new Server(server, {
 app.use(express.json())
 app.use(cookieParser())
 app.use(cors({
-  origin: allowedOrigins,
+  origin: corsCheck,
   credentials: true
 }))
 
