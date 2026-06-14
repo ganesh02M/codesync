@@ -1,19 +1,22 @@
 # </> CodeSync — Real-Time Collaborative Code Editor
-
-A real-time collaborative code editor where multiple users can write, edit, and execute code together — like Google Docs, but for code.
-
+ 
+A real-time collaborative code editor where multiple users can write, edit, and execute code together — like Google Docs, but for code. Now with an integrated AI coding assistant.
+ 
 ---
-
+ 
 ## 🌐 Live Demo
-
-🔗 Frontend: _coming soon_
-⚙️ Backend: _coming soon_
-
+ 
+| Service | URL |
+|---------|-----|
+| 🖥️ **Frontend** | [codesync-self.vercel.app](https://codesync-self.vercel.app) |
+| ⚙️ **Backend** | [codesync-fvna.onrender.com](https://codesync-fvna.onrender.com) |
+ 
 ---
-
+ 
 ## ✨ Features
-
+ 
 - 👥 **Real-time collaboration** — Multiple users can code together simultaneously
+- 🤖 **AI Code Assistant** — Ask AI to explain, debug, or optimize your code (powered by Llama 3.3 via Groq)
 - 💬 **Live Chat** — In-room chat sidebar for communication
 - 🖱️ **Live Cursors** — See where other users are typing in real-time
 - 🏠 **Room System** — Create or join rooms with unique Room ID
@@ -22,11 +25,10 @@ A real-time collaborative code editor where multiple users can write, edit, and 
 - 💾 **Auto Save** — Save code state to database
 - 🔐 **JWT Authentication** — Secure login and registration
 - 📱 **Responsive UI** — Works on all devices
-
 ---
-
+ 
 ## 🛠️ Tech Stack
-
+ 
 | Layer | Technology |
 |-------|-----------|
 | **Frontend** | React.js, Vite |
@@ -36,13 +38,14 @@ A real-time collaborative code editor where multiple users can write, edit, and 
 | **Backend** | Node.js, Express.js |
 | **Database** | MongoDB, Mongoose |
 | **Authentication** | JWT, bcrypt |
+| **AI Assistant** | Groq API (Llama 3.3 70B) |
 | **Code Execution** | Glot.io API |
-| **Deployment** | Vercel (Frontend), Render (Backend) |
-
+| **Deployment** | Vercel (Frontend), Render (Backend), MongoDB Atlas (Database) |
+ 
 ---
-
+ 
 ## 📂 Project Structure
-
+ 
 ```
 codesync/
 ├── frontend/
@@ -54,62 +57,71 @@ codesync/
 │   │   └── services/       → Axios API service
 │   └── package.json
 ├── backend/
-│   ├── controllers/        → Auth, Room controllers
+│   ├── controllers/        → Auth, Room, AI controllers
 │   ├── models/             → User, Room models
-│   ├── routes/             → Auth, Room routes
+│   ├── routes/             → Auth, Room, AI routes
 │   ├── middleware/         → JWT auth middleware
 │   ├── socket/             → Socket.io event handlers
 │   ├── config/             → DB connection
 │   └── index.js
 └── README.md
 ```
-
+ 
 ---
-
+ 
 ## ⚙️ Installation & Setup
-
+ 
 ### Prerequisites
 - Node.js v18+
 - MongoDB (Local or Atlas)
 - Glot.io API Token (free at [glot.io](https://glot.io))
-
+- Groq API Key (free at [console.groq.com](https://console.groq.com))
 ### 1. Clone the Repository
 ```bash
 git clone https://github.com/ganesh02M/codesync.git
 cd codesync
 ```
-
+ 
 ### 2. Backend Setup
 ```bash
 cd backend
 npm install
 ```
-
+ 
 Create `.env` file:
 ```env
 PORT=5000
 MONGODB_URI=mongodb://127.0.0.1:27017/codesync
 JWT_SECRET=your_jwt_secret
 GLOT_TOKEN=your_glot_api_token
+GROQ_API_KEY=your_groq_api_key
 ```
-
+ 
 ```bash
 npm run dev
 ```
 ✅ Backend runs on `http://localhost:5000`
-
+ 
 ### 3. Frontend Setup
 ```bash
 cd ../frontend
 npm install
+```
+ 
+Create `.env` file:
+```env
+VITE_SERVER_URL=http://localhost:5000/api
+```
+ 
+```bash
 npm run dev
 ```
 ✅ Frontend runs on `http://localhost:5173`
-
+ 
 ---
-
+ 
 ## 📡 API Endpoints
-
+ 
 ### Auth Routes (`/api/auth`)
 | Method | Route | Description |
 |--------|-------|-------------|
@@ -117,7 +129,7 @@ npm run dev
 | POST | `/login` | User login |
 | GET | `/logout` | Logout |
 | GET | `/me` | Get current user |
-
+ 
 ### Room Routes (`/api/room`)
 | Method | Route | Description | Auth |
 |--------|-------|-------------|------|
@@ -127,11 +139,16 @@ npm run dev
 | POST | `/join/:roomId` | Join a room | ✅ |
 | POST | `/save/:roomId` | Save code | ✅ |
 | POST | `/run` | Execute code | ✅ |
-
+ 
+### AI Routes (`/api/ai`)
+| Method | Route | Description | Auth |
+|--------|-------|-------------|------|
+| POST | `/suggest` | Get AI code suggestion/explanation | ✅ |
+ 
 ---
-
+ 
 ## 🔌 Socket Events
-
+ 
 | Event | Direction | Description |
 |-------|-----------|-------------|
 | `join-room` | Client → Server | Join a coding room |
@@ -144,28 +161,27 @@ npm run dev
 | `new-message` | Server → Client | Receive chat messages |
 | `user-joined` | Server → Client | User joined notification |
 | `user-left` | Server → Client | User left notification |
-
+ 
 ---
-
+ 
 ## 🚀 Deployment
-
+ 
 ### Backend (Render)
 1. Connect GitHub repo on [render.com](https://render.com)
 2. Root Directory: `backend`
 3. Build Command: `npm install`
 4. Start Command: `node index.js`
 5. Add environment variables in Render dashboard
-
 ### Frontend (Vercel)
 1. Connect GitHub repo on [vercel.com](https://vercel.com)
 2. Root Directory: `frontend`
 3. Build Command: `npm run build`
 4. Output Directory: `dist`
-
+5. Add `VITE_SERVER_URL` environment variable pointing to your backend URL + `/api`
 ---
-
+ 
 ## 👨‍💻 Author
-
+ 
 **Ganesh Mishra**
 - 📧 mishraganesh9305@gmail.com
 - 🔗 [GitHub](https://github.com/ganesh02M)
