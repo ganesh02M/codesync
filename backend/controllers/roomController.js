@@ -90,7 +90,7 @@ exports.runCode = async (req, res) => {
       python: 'python',
       cpp: 'cpp',
       java: 'java',
-      typescript: 'typescript'
+      typescript: 'typescript',
       c: 'c'
     }
     const extMap = {
@@ -98,7 +98,7 @@ exports.runCode = async (req, res) => {
       python: 'py',
       cpp: 'cpp',
       java: 'java',
-      typescript: 'ts'
+      typescript: 'ts',
       c: 'c'
     }
     const fileName = language === 'java' ? 'Main.java' : `main.${extMap[language]}`
