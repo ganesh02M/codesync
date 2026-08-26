@@ -91,6 +91,7 @@ exports.runCode = async (req, res) => {
       cpp: 'cpp',
       java: 'java',
       typescript: 'typescript'
+      c: 'c'
     }
     const extMap = {
       javascript: 'js',
@@ -98,6 +99,7 @@ exports.runCode = async (req, res) => {
       cpp: 'cpp',
       java: 'java',
       typescript: 'ts'
+      c: 'c'
     }
     const fileName = language === 'java' ? 'Main.java' : `main.${extMap[language]}`
     const response = await fetch(`https://glot.io/api/run/${langMap[language]}/latest`, {

@@ -234,6 +234,7 @@ function EditorPage() {
             <option value="javascript">JavaScript</option>
             <option value="python">Python</option>
             <option value="cpp">C++</option>
+            <option value="c">C</option>
             <option value="java">Java</option>
             <option value="typescript">TypeScript</option>
           </select>
