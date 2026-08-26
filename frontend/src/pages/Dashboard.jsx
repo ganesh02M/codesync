@@ -121,6 +121,7 @@ function Dashboard() {
               <option value="cpp">C++</option>
               <option value="java">Java</option>
               <option value="typescript">TypeScript</option>
+              <option value="c">C</option>
             </select>
             <div style={{ display: 'flex', gap: '8px' }}>
               <button type="submit" disabled={isLoading} style={btnStyle('#238636')}>
