@@ -102,6 +102,7 @@ exports.runCode = async (req, res) => {
       c: 'c'
     }
     const fileName = language === 'java' ? 'Main.java' : `main.${extMap[language]}`
+    console.log('Running:', language, fileName)
     const response = await fetch(`https://glot.io/api/run/${langMap[language]}/latest`, {
       method: 'POST',
       headers: {
@@ -118,6 +119,7 @@ exports.runCode = async (req, res) => {
       output: data.stdout || data.stderr || 'No output'
     })
   } catch (error) {
+     console.error('runCode error:', error) 
     return res.status(500).json({ success: false, message: error.message })
   }
 }
