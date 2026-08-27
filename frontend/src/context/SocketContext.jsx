@@ -12,25 +12,26 @@ export const SocketProvider = ({ children }) => {
   const { user } = useAuthStore()
 
   useEffect(() => {
-    if (user) {
-     socketRef.current = io(import.meta.env.VITE_SERVER_URL || 'http://localhost:5000', {
-  withCredentials: true
-})
+  if (user) {
+    const socketUrl = (import.meta.env.VITE_SERVER_URL || 'http://localhost:5000/api').replace('/api', '')
+    socketRef.current = io(socketUrl, {
+      withCredentials: true
+    })
 
-      socketRef.current.on('connect', () => {
-        setConnected(true)
-        console.log('Socket connected!')
-      })
+    socketRef.current.on('connect', () => {
+      setConnected(true)
+      console.log('Socket connected!')
+    })
 
-      socketRef.current.on('disconnect', () => {
-        setConnected(false)
-      })
+    socketRef.current.on('disconnect', () => {
+      setConnected(false)
+    })
 
-      return () => {
-        socketRef.current?.disconnect()
-      }
+    return () => {
+      socketRef.current?.disconnect()
     }
-  }, [user])
+  }
+}, [user])
 
   return (
     <SocketContext.Provider value={{ socket: socketRef.current, connected }}>
