@@ -85,41 +85,39 @@ exports.saveCode = async (req, res) => {
 exports.runCode = async (req, res) => {
   try {
     const { code, language } = req.body
-    const langMap = {
-      javascript: 'javascript',
-      python: 'python',
-      cpp: 'cpp',
-      java: 'java',
-      typescript: 'typescript',
-      c: 'c'
+
+    const pistonLangMap = {
+      javascript: { language: 'javascript', version: '18.15.0' },
+      python: { language: 'python', version: '3.10.0' },
+      cpp: { language: 'cpp', version: '10.2.0' },
+      c: { language: 'c', version: '10.2.0' },
+      java: { language: 'java', version: '15.0.2' },
+      typescript: { language: 'typescript', version: '5.0.3' }
     }
-    const extMap = {
-      javascript: 'js',
-      python: 'py',
-      cpp: 'cpp',
-      java: 'java',
-      typescript: 'ts',
-      c: 'c'
+
+    const config = pistonLangMap[language]
+    if (!config) {
+      return res.status(400).json({ success: false, message: 'Unsupported language' })
     }
-    const fileName = language === 'java' ? 'Main.java' : `main.${extMap[language]}`
-    console.log('Running:', language, fileName)
-    const response = await fetch(`https://glot.io/api/run/${langMap[language]}/latest`, {
+
+    const response = await fetch('https://emkc.org/api/v2/piston/execute', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Token ${process.env.GLOT_TOKEN}`
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        files: [{ name: fileName, content: code }]
+        language: config.language,
+        version: config.version,
+        files: [{ content: code }]
       })
     })
+
     const data = await response.json()
-    return res.status(200).json({
-      success: true,
-      output: data.stdout || data.stderr || 'No output'
-    })
+    console.log('Piston response:', JSON.stringify(data))
+
+    const output = data.run?.stdout || data.run?.stderr || data.message || 'No output'
+
+    return res.status(200).json({ success: true, output })
   } catch (error) {
-     console.error('runCode error:', error) 
+    console.error('runCode error:', error)
     return res.status(500).json({ success: false, message: error.message })
   }
 }
