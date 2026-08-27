@@ -86,34 +86,33 @@ exports.runCode = async (req, res) => {
   try {
     const { code, language } = req.body
 
-    const pistonLangMap = {
-      javascript: { language: 'javascript', version: '18.15.0' },
-      python: { language: 'python', version: '3.10.0' },
-      cpp: { language: 'cpp', version: '10.2.0' },
-      c: { language: 'c', version: '10.2.0' },
-      java: { language: 'java', version: '15.0.2' },
-      typescript: { language: 'typescript', version: '5.0.3' }
+    const judge0LangMap = {
+      javascript: 63,
+      python: 71,
+      cpp: 54,
+      c: 50,
+      java: 62,
+      typescript: 74
     }
 
-    const config = pistonLangMap[language]
-    if (!config) {
+    const languageId = judge0LangMap[language]
+    if (!languageId) {
       return res.status(400).json({ success: false, message: 'Unsupported language' })
     }
 
-    const response = await fetch('https://emkc.org/api/v2/piston/execute', {
+    const submitRes = await fetch('https://ce.judge0.com/submissions?base64_encoded=false&wait=true', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        language: config.language,
-        version: config.version,
-        files: [{ content: code }]
+        source_code: code,
+        language_id: languageId
       })
     })
 
-    const data = await response.json()
-    console.log('Piston response:', JSON.stringify(data))
+    const data = await submitRes.json()
+    console.log('Judge0 response:', JSON.stringify(data))
 
-    const output = data.run?.stdout || data.run?.stderr || data.message || 'No output'
+    const output = data.stdout || data.stderr || data.compile_output || 'No output'
 
     return res.status(200).json({ success: true, output })
   } catch (error) {
