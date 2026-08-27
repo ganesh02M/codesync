@@ -9,7 +9,7 @@ exports.getAISuggestion = async (req, res) => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
+        model: 'openai/gpt-oss-20b',
         messages: [{
           role: 'user',
           content: `You are a helpful coding assistant. Language: ${language}\n\nCurrent code:\n\`\`\`${language}\n${code}\n\`\`\`\n\nUser request: ${prompt}\n\nProvide a helpful, concise response. If suggesting code changes, show the complete updated code in a code block.`
@@ -19,8 +19,8 @@ exports.getAISuggestion = async (req, res) => {
     })
 
     const data = await response.json()
-    console.log('Groq status:', response.status)
     console.log('Groq response:', JSON.stringify(data))
+
     if (data.error) {
       return res.status(500).json({ success: false, message: data.error.message })
     }
@@ -30,7 +30,7 @@ exports.getAISuggestion = async (req, res) => {
       response: data.choices[0].message.content
     })
   } catch (error) {
-       console.error('getAISuggestion error:', error) 
+    console.error('getAISuggestion error:', error)
     return res.status(500).json({ success: false, message: error.message })
   }
 }
